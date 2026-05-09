@@ -5,3 +5,10 @@ edition = "2021"
 
 [dependencies]
 atlas-core = { path = "../atlas-core" }
+uniffi = { version = "0.28", features = ["cli"] }
+
+[build-dependencies]
+uniffi = { version = "0.28", features = ["build"] }
+
+[lib]
+crate-type = ["staticlib", "cdylib"]
