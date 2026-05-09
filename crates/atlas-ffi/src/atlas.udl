@@ -10,12 +10,65 @@ dictionary FeatureEntry {
     FeatureStatus status;
 };
 
+dictionary CpuCoreSnapshot {
+    string name;
+    float usage;
+    u64 frequency_mhz;
+};
+
+dictionary ProcessSnapshot {
+    u32 pid;
+    string name;
+    float cpu_usage;
+    u64 mem_bytes;
+};
+
+dictionary NetworkInterfaceSnapshot {
+    string name;
+    u64 upload_bps;
+    u64 download_bps;
+};
+
+dictionary DiskSnapshot {
+    string name;
+    string mount_point;
+    u64 total_bytes;
+    u64 used_bytes;
+    u64 available_bytes;
+};
+
+dictionary BatterySnapshot {
+    float charge_percent;
+    boolean is_charging;
+    i64? time_to_empty_secs;
+    i64? time_to_full_secs;
+    float health_percent;
+    u32? cycle_count;
+};
+
+dictionary TemperatureSnapshot {
+    string label;
+    float celsius;
+};
+
 dictionary SystemSnapshot {
     float cpu_usage;
     u64 mem_used_bytes;
     u64 mem_total_bytes;
     u64 net_upload_bps;
     u64 net_download_bps;
+
+    sequence<CpuCoreSnapshot> cpu_cores;
+    u64 mem_free_bytes;
+    u64 mem_available_bytes;
+    u64 swap_used_bytes;
+    u64 swap_total_bytes;
+    sequence<ProcessSnapshot> top_cpu_processes;
+    sequence<ProcessSnapshot> top_mem_processes;
+    sequence<NetworkInterfaceSnapshot> network_interfaces;
+    sequence<DiskSnapshot> disks;
+    BatterySnapshot? battery;
+    sequence<TemperatureSnapshot> temperatures;
 };
 
 dictionary PortProcessInfo {

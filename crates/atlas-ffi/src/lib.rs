@@ -45,6 +45,53 @@ pub struct FeatureEntry {
     pub status: FeatureStatus,
 }
 
+/// A snapshot of a single CPU core for FFI.
+pub struct CpuCoreSnapshot {
+    pub name: String,
+    pub usage: f32,
+    pub frequency_mhz: u64,
+}
+
+/// A snapshot of a running process for FFI.
+pub struct ProcessSnapshot {
+    pub pid: u32,
+    pub name: String,
+    pub cpu_usage: f32,
+    pub mem_bytes: u64,
+}
+
+/// A snapshot of a network interface for FFI.
+pub struct NetworkInterfaceSnapshot {
+    pub name: String,
+    pub upload_bps: u64,
+    pub download_bps: u64,
+}
+
+/// A snapshot of a disk for FFI.
+pub struct DiskSnapshot {
+    pub name: String,
+    pub mount_point: String,
+    pub total_bytes: u64,
+    pub used_bytes: u64,
+    pub available_bytes: u64,
+}
+
+/// A snapshot of battery state for FFI.
+pub struct BatterySnapshot {
+    pub charge_percent: f32,
+    pub is_charging: bool,
+    pub time_to_empty_secs: Option<i64>,
+    pub time_to_full_secs: Option<i64>,
+    pub health_percent: f32,
+    pub cycle_count: Option<u32>,
+}
+
+/// A single temperature reading for FFI.
+pub struct TemperatureSnapshot {
+    pub label: String,
+    pub celsius: f32,
+}
+
 /// A snapshot of system performance metrics for FFI.
 pub struct SystemSnapshot {
     pub cpu_usage: f32,
@@ -52,6 +99,17 @@ pub struct SystemSnapshot {
     pub mem_total_bytes: u64,
     pub net_upload_bps: u64,
     pub net_download_bps: u64,
+    pub cpu_cores: Vec<CpuCoreSnapshot>,
+    pub mem_free_bytes: u64,
+    pub mem_available_bytes: u64,
+    pub swap_used_bytes: u64,
+    pub swap_total_bytes: u64,
+    pub top_cpu_processes: Vec<ProcessSnapshot>,
+    pub top_mem_processes: Vec<ProcessSnapshot>,
+    pub network_interfaces: Vec<NetworkInterfaceSnapshot>,
+    pub disks: Vec<DiskSnapshot>,
+    pub battery: Option<BatterySnapshot>,
+    pub temperatures: Vec<TemperatureSnapshot>,
 }
 
 /// Information about a process associated with a network port for FFI.
@@ -72,6 +130,63 @@ impl From<atlas_core::features::FeatureStatus> for FeatureStatus {
         match status {
             atlas_core::features::FeatureStatus::Enabled => Self::Enabled,
             atlas_core::features::FeatureStatus::Disabled => Self::Disabled,
+        }
+    }
+}
+
+impl From<atlas_core::monitor::models::SystemSnapshot> for SystemSnapshot {
+    fn from(s: atlas_core::monitor::models::SystemSnapshot) -> Self {
+        SystemSnapshot {
+            cpu_usage: s.cpu_usage,
+            mem_used_bytes: s.mem_used_bytes,
+            mem_total_bytes: s.mem_total_bytes,
+            net_upload_bps: s.net_upload_bps,
+            net_download_bps: s.net_download_bps,
+            cpu_cores: s.cpu_cores.into_iter().map(|c| CpuCoreSnapshot {
+                name: c.name,
+                usage: c.usage,
+                frequency_mhz: c.frequency_mhz,
+            }).collect(),
+            mem_free_bytes: s.mem_free_bytes,
+            mem_available_bytes: s.mem_available_bytes,
+            swap_used_bytes: s.swap_used_bytes,
+            swap_total_bytes: s.swap_total_bytes,
+            top_cpu_processes: s.top_cpu_processes.into_iter().map(|p| ProcessSnapshot {
+                pid: p.pid,
+                name: p.name,
+                cpu_usage: p.cpu_usage,
+                mem_bytes: p.mem_bytes,
+            }).collect(),
+            top_mem_processes: s.top_mem_processes.into_iter().map(|p| ProcessSnapshot {
+                pid: p.pid,
+                name: p.name,
+                cpu_usage: p.cpu_usage,
+                mem_bytes: p.mem_bytes,
+            }).collect(),
+            network_interfaces: s.network_interfaces.into_iter().map(|n| NetworkInterfaceSnapshot {
+                name: n.name,
+                upload_bps: n.upload_bps,
+                download_bps: n.download_bps,
+            }).collect(),
+            disks: s.disks.into_iter().map(|d| DiskSnapshot {
+                name: d.name,
+                mount_point: d.mount_point,
+                total_bytes: d.total_bytes,
+                used_bytes: d.used_bytes,
+                available_bytes: d.available_bytes,
+            }).collect(),
+            battery: s.battery.map(|b| BatterySnapshot {
+                charge_percent: b.charge_percent,
+                is_charging: b.is_charging,
+                time_to_empty_secs: b.time_to_empty_secs,
+                time_to_full_secs: b.time_to_full_secs,
+                health_percent: b.health_percent,
+                cycle_count: b.cycle_count,
+            }),
+            temperatures: s.temperatures.into_iter().map(|t| TemperatureSnapshot {
+                label: t.label,
+                celsius: t.celsius,
+            }).collect(),
         }
     }
 }
@@ -131,13 +246,7 @@ pub fn start_monitoring(callback: Box<dyn SystemMonitorCallback>) -> Result<(), 
         let mut collector = atlas_core::monitor::collector::Collector::new();
         loop {
             let snapshot = collector.take_snapshot();
-            let ffi_snapshot = SystemSnapshot {
-                cpu_usage: snapshot.cpu_usage,
-                mem_used_bytes: snapshot.mem_used_bytes,
-                mem_total_bytes: snapshot.mem_total_bytes,
-                net_upload_bps: snapshot.net_upload_bps,
-                net_download_bps: snapshot.net_download_bps,
-            };
+            let ffi_snapshot = SystemSnapshot::from(snapshot);
             let cb = Arc::clone(&callback);
             tokio::task::spawn_blocking(move || {
                 cb.on_snapshot(ffi_snapshot);
