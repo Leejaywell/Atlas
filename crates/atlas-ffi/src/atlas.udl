@@ -33,6 +33,7 @@ enum AtlasError {
     "LockPoisoned",
     "MonitoringError",
     "ProcessError",
+    "CaptureError",
 };
 
 /// The `atlas` namespace contains the core functions exposed to other languages.
@@ -55,6 +56,15 @@ namespace atlas {
     [Throws=AtlasError]
     void stop_monitoring();
 
+    [Throws=AtlasError]
     PortProcessInfo? lookup_port(u16 port);
+    
+    [Throws=AtlasError]
     boolean kill_port_process(u32 pid);
+
+    [Throws=AtlasError]
+    sequence<u8> capture_full_screen();
+    
+    [Throws=AtlasError]
+    sequence<u8> capture_region(i32 x, i32 y, u32 width, u32 height);
 };

@@ -53,15 +53,40 @@ struct ContentView: View {
     // Port Master State
     @State private var portInput: String = ""
 
+    // Screenshot State
+    @State private var isShowingSelectionOverlay: Bool = false
+
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                Text(statusText)
-                    .font(.headline)
-                
-                Divider()
-                
-                // Real-time Monitoring Section
+        ZStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    Text(statusText)
+                        .font(.headline)
+                    
+                    Divider()
+                    
+                    // Screenshot Section
+                    Group {
+                        Text("Screenshot & Capture")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        
+                        Button(action: {
+                            isShowingSelectionOverlay = true
+                        }) {
+                            HStack {
+                                Image(systemName: "selection.pin.in.out")
+                                Text("Select Area to Capture")
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 8)
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
+                    
+                    Divider()
+                    
+                    // Real-time Monitoring Section
                 Group {
                     Text("System Monitoring")
                         .font(.subheadline)
@@ -162,6 +187,13 @@ struct ContentView: View {
                 }
             }
             .padding()
+
+            if isShowingSelectionOverlay {
+                SelectionOverlay { rect in
+                    print("Captured rect: \(rect)")
+                    isShowingSelectionOverlay = false
+                }
+            }
         }
         .frame(minWidth: 350, minHeight: 500)
         .onAppear {

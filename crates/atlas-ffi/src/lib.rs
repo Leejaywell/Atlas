@@ -29,6 +29,8 @@ pub enum AtlasError {
     MonitoringError(String),
     #[error("Process error: {0}")]
     ProcessError(String),
+    #[error("Capture error: {0}")]
+    CaptureError(String),
 }
 
 /// Represents the state of a feature module for FFI.
@@ -59,7 +61,9 @@ pub struct PortProcessInfo {
     pub process_name: String,
 }
 
+/// Callback interface for receiving real-time system monitoring snapshots.
 pub trait SystemMonitorCallback: Send + Sync {
+    /// Called when a new system snapshot is available.
     fn on_snapshot(&self, snapshot: SystemSnapshot);
 }
 
@@ -144,20 +148,39 @@ pub fn stop_monitoring() -> Result<(), AtlasError> {
 }
 
 /// Looks up process information for a specific TCP port.
-pub fn lookup_port(port: u16) -> Option<PortProcessInfo> {
+///
+/// Returns `Ok(Some(info))` if a process is found, `Ok(None)` if no process is listening,
+/// or an error if the lookup command fails.
+pub fn lookup_port(port: u16) -> Result<Option<PortProcessInfo>, AtlasError> {
     atlas_core::monitor::port_master::find_process_by_port(port)
-        .ok()
-        .flatten()
-        .map(|info| PortProcessInfo {
+        .map_err(|e| AtlasError::ProcessError(e.to_string()))?
+        .map(|info| Ok(PortProcessInfo {
             port: info.port,
             pid: info.pid,
             process_name: info.process_name,
-        })
+        }))
+        .transpose()
 }
 
 /// Kills a process by its PID.
-pub fn kill_port_process(pid: u32) -> bool {
-    atlas_core::monitor::port_master::kill_process(pid)
+pub fn kill_port_process(pid: u32) -> Result<bool, AtlasError> {
+    Ok(atlas_core::monitor::port_master::kill_process(pid))
+}
+
+/// Captures the full screen and returns PNG bytes.
+///
+/// Currently, this only supports the primary monitor.
+pub fn capture_full_screen() -> Result<Vec<u8>, AtlasError> {
+    atlas_core::capture::engine::CaptureEngine::capture_full_screen()
+        .map_err(|e| AtlasError::CaptureError(e.to_string()))
+}
+
+/// Captures a specific region of the screen and returns PNG bytes.
+///
+/// Currently, this only supports the primary monitor.
+pub fn capture_region(x: i32, y: i32, width: u32, height: u32) -> Result<Vec<u8>, AtlasError> {
+    atlas_core::capture::engine::CaptureEngine::capture_region(x, y, width, height)
+        .map_err(|e| AtlasError::CaptureError(e.to_string()))
 }
 
 #[cfg(test)]
@@ -192,10 +215,18 @@ mod tests {
         let listener = TcpListener::bind("127.0.0.1:0").expect("Failed to bind");
         let port = listener.local_addr().unwrap().port();
         
-        let info = lookup_port(port);
+        let info = lookup_port(port).unwrap();
         assert!(info.is_some());
         let info = info.unwrap();
         assert_eq!(info.port, port);
         assert!(info.pid > 0);
+    }
+
+    #[test]
+    fn test_capture_functions_exist() {
+        // In CI, these will likely return error in headless environment, 
+        // but we want to ensure they are callable and return Result.
+        let _ = capture_full_screen();
+        let _ = capture_region(0, 0, 100, 100);
     }
 }
