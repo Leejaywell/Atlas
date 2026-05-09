@@ -258,7 +258,7 @@ struct ContentView: View {
         .onAppear {
             features = AtlasBridge.listFeatures()
             statusText = "Atlas is Ready"
-            
+
             // Start real-time monitoring
             AtlasBridge.startMonitoring { snapshot in
                 DispatchQueue.main.async {
@@ -269,6 +269,9 @@ struct ContentView: View {
                     self.netDownload = snapshot.netDownloadBps
                 }
             }
+        }
+        .onDisappear {
+            AtlasBridge.stopMonitoring()
         }
     }
     
