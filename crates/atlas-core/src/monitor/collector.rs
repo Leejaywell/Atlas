@@ -17,7 +17,7 @@ impl Collector {
     pub fn take_snapshot(&mut self) -> SystemSnapshot {
         self.sys.refresh_cpu();
         self.sys.refresh_memory();
-        self.networks.refresh_list();
+        self.networks.refresh();
 
         let cpu_usage = self.sys.global_cpu_info().cpu_usage();
         let mem_used_bytes = self.sys.used_memory();
