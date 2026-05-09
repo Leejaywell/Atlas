@@ -44,6 +44,18 @@ class AtlasBridge {
         print("Killing process \(pid)")
         return true
     }
+
+    static func captureRegion(x: Int32, y: Int32, width: UInt32, height: UInt32) -> Data? {
+        print("Capturing region: x=\(x), y=\(y), width=\(width), height=\(height)")
+        // Mock: return placeholder PNG data (just for demonstration)
+        return Data()
+    }
+
+    static func captureFullScreen() -> Data? {
+        print("Capturing full screen")
+        // Mock: return placeholder PNG data
+        return Data()
+    }
 }
 
 struct ContentView: View {
@@ -64,6 +76,8 @@ struct ContentView: View {
 
     // Screenshot State
     @State private var isShowingSelectionOverlay: Bool = false
+    @State private var captureStatus: String = ""
+    @State private var showCaptureStatus: Bool = false
 
     var body: some View {
         ZStack {
@@ -71,7 +85,20 @@ struct ContentView: View {
                 VStack(alignment: .leading, spacing: 20) {
                     Text(statusText)
                         .font(.headline)
-                    
+
+                    if showCaptureStatus {
+                        HStack {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(.green)
+                            Text(captureStatus)
+                                .font(.caption)
+                        }
+                        .padding(.vertical, 8)
+                        .padding(.horizontal, 12)
+                        .background(Color.green.opacity(0.1))
+                        .cornerRadius(6)
+                    }
+
                     Divider()
                     
                     // Screenshot Section
@@ -207,7 +234,22 @@ struct ContentView: View {
 
             if isShowingSelectionOverlay {
                 SelectionOverlay { rect in
-                    print("Captured rect: \(rect)")
+                    // Call bridge to capture the selected region
+                    if let imageData = AtlasBridge.captureRegion(
+                        x: Int32(rect.minX),
+                        y: Int32(rect.minY),
+                        width: UInt32(rect.width),
+                        height: UInt32(rect.height)
+                    ) {
+                        // Copy to clipboard (mock for now)
+                        captureStatus = "Captured! \(Int(rect.width))x\(Int(rect.height)) px"
+                        showCaptureStatus = true
+
+                        // Auto-hide status after 2 seconds
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                            showCaptureStatus = false
+                        }
+                    }
                     isShowingSelectionOverlay = false
                 }
             }
