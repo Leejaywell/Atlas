@@ -4,20 +4,57 @@ enum FeatureStatus {
     "Disabled",
 };
 
-/// A record representing a feature and its current status.
+/// Represents a feature and its current status.
 dictionary FeatureEntry {
     string name;
     FeatureStatus status;
 };
 
+dictionary SystemSnapshot {
+    float cpu_usage;
+    u64 mem_used_bytes;
+    u64 mem_total_bytes;
+    u64 net_upload_bps;
+    u64 net_download_bps;
+};
+
+dictionary PortProcessInfo {
+    u16 port;
+    u32 pid;
+    string process_name;
+};
+
+callback interface SystemMonitorCallback {
+    void on_snapshot(SystemSnapshot snapshot);
+};
+
+[Error]
+enum AtlasError {
+    "LockPoisoned",
+    "MonitoringError",
+    "ProcessError",
+};
+
 /// The `atlas` namespace contains the core functions exposed to other languages.
 namespace atlas {
     /// Returns the current status of the Atlas core as a string.
+    [Throws=AtlasError]
     string get_core_status();
 
     /// Toggles a feature state. Returns true if the feature existed and was toggled.
+    [Throws=AtlasError]
     boolean toggle_feature(string name, boolean enabled);
 
-    /// Returns a list of all available feature names.
-    sequence<string> list_features();
+    /// Returns a list of all available feature entries.
+    [Throws=AtlasError]
+    sequence<FeatureEntry> list_features();
+
+    [Throws=AtlasError]
+    void start_monitoring(SystemMonitorCallback callback);
+    
+    [Throws=AtlasError]
+    void stop_monitoring();
+
+    PortProcessInfo? lookup_port(u16 port);
+    boolean kill_port_process(u32 pid);
 };
