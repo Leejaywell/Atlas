@@ -4,9 +4,9 @@ use features::FeatureManager;
 /// Core structure for the Atlas system.
 pub struct AtlasCore {
     /// Current version of the Atlas Core.
-    pub version: String,
+    version: String,
     /// Manager for dynamic features.
-    pub feature_manager: FeatureManager,
+    feature_manager: FeatureManager,
 }
 
 impl Default for AtlasCore {
@@ -28,6 +28,21 @@ impl AtlasCore {
     pub fn get_status(&self) -> String {
         format!("Atlas Core v{} is running", self.version)
     }
+
+    /// Returns the current version of the Atlas Core.
+    pub fn version(&self) -> &str {
+        &self.version
+    }
+
+    /// Returns a reference to the feature manager.
+    pub fn feature_manager(&self) -> &FeatureManager {
+        &self.feature_manager
+    }
+
+    /// Returns a mutable reference to the feature manager.
+    pub fn feature_manager_mut(&mut self) -> &mut FeatureManager {
+        &mut self.feature_manager
+    }
 }
 
 #[cfg(test)]
@@ -43,6 +58,6 @@ mod tests {
     #[test]
     fn test_default_implementation() {
         let core = AtlasCore::default();
-        assert_eq!(core.version, env!("CARGO_PKG_VERSION"));
+        assert_eq!(core.version(), env!("CARGO_PKG_VERSION"));
     }
 }

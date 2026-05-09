@@ -31,11 +31,17 @@ impl FeatureManager {
         Self { features }
     }
 
-    /// Toggles a feature state.
-    pub fn toggle_feature(&mut self, name: &str, enabled: bool) {
-        if self.features.contains_key(name) {
-            let status = if enabled { FeatureStatus::Enabled } else { FeatureStatus::Disabled };
-            self.features.insert(name.to_string(), status);
+    /// Toggles a feature state. Returns true if the feature existed and was toggled.
+    pub fn toggle_feature(&mut self, name: &str, enabled: bool) -> bool {
+        if let Some(status) = self.features.get_mut(name) {
+            *status = if enabled {
+                FeatureStatus::Enabled
+            } else {
+                FeatureStatus::Disabled
+            };
+            true
+        } else {
+            false
         }
     }
 
@@ -64,5 +70,11 @@ mod tests {
         
         fm.toggle_feature("monitoring", false);
         assert_eq!(fm.get_feature_status("monitoring"), Some(FeatureStatus::Disabled));
+    }
+
+    #[test]
+    fn test_toggle_non_existent_feature() {
+        let mut fm = FeatureManager::new();
+        assert!(!fm.toggle_feature("non-existent", true));
     }
 }
