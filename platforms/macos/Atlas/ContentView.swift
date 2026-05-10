@@ -10,7 +10,6 @@ struct ContentView: View {
     @State private var features: [String] = []
     @State private var enabledFeatures: [String: Bool] = [:]
     @State private var snapshot: SystemSnapshot? = nil
-    @State private var isShowingSelectionOverlay: Bool = false
     @State private var capturedScreenshot: CapturedScreenshot?
     @State private var captureStatus: String = ""
     @State private var captureStatusKind: CaptureStatusKind = .success
@@ -31,7 +30,7 @@ struct ContentView: View {
 
                     if isFeatureEnabled(.screenshot) {
                         ScreenshotPanel(
-                            onSelectArea: { isShowingSelectionOverlay = true },
+                            onSelectArea: showSelectionWindow,
                             onFullScreen: captureFullScreen
                         )
 
@@ -59,13 +58,6 @@ struct ContentView: View {
                     AppFooter()
                 }
                 .padding()
-            }
-
-            if isShowingSelectionOverlay {
-                SelectionOverlay(
-                    onCancel: { isShowingSelectionOverlay = false },
-                    onCapture: captureSelection
-                )
             }
 
             if let capturedScreenshot {
@@ -121,6 +113,10 @@ struct ContentView: View {
         enabledFeatures[module.featureName, default: false]
     }
 
+    private func showSelectionWindow() {
+        ScreenshotSelectionWindow.show(onCapture: captureSelection)
+    }
+
     private func captureSelection(_ rect: CGRect) {
         if let data = AtlasBridge.captureRegion(
             x: Int32(rect.minX),
@@ -131,7 +127,6 @@ struct ContentView: View {
             capturedScreenshot = CapturedScreenshot(pngData: data, rect: rect)
             showStatus("Captured \(Int(rect.width))×\(Int(rect.height)) px")
         }
-        isShowingSelectionOverlay = false
     }
 
     private func captureFullScreen() {
