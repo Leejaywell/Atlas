@@ -21,6 +21,8 @@
 		83CBBA2B1A601CBA00E9B192 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 83CBBA3C1A601CBA00E9B192 /* Assets.xcassets */; };
 		83CBBA2C1A601CBA00E9B192 /* ScreenshotModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83CBBA3E1A601CBA00E9B192 /* ScreenshotModels.swift */; };
 		83CBBA2D1A601CBA00E9B192 /* ScreenshotModelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83CBBA3F1A601CBA00E9B192 /* ScreenshotModelsTests.swift */; };
+		83CBBA661A601CBA00E9B192 /* ScreenshotOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83CBBA671A601CBA00E9B192 /* ScreenshotOutput.swift */; };
+		83CBBA641A601CBA00E9B192 /* ScreenshotOutputTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83CBBA651A601CBA00E9B192 /* ScreenshotOutputTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,6 +53,8 @@
 		83CBBA3E1A601CBA00E9B192 /* ScreenshotModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotModels.swift; sourceTree = "<group>"; };
 		83CBBA3F1A601CBA00E9B192 /* ScreenshotModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotModelsTests.swift; sourceTree = "<group>"; };
 		83CBBA4A1A601CBA00E9B192 /* AtlasTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AtlasTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		83CBBA651A601CBA00E9B192 /* ScreenshotOutputTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotOutputTests.swift; sourceTree = "<group>"; };
+		83CBBA671A601CBA00E9B192 /* ScreenshotOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotOutput.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,6 +106,7 @@
 				83CBBA381A601CBA00E9B192 /* PortMasterPanel.swift */,
 				83CBBA391A601CBA00E9B192 /* ScreenshotPanel.swift */,
 				83CBBA3E1A601CBA00E9B192 /* ScreenshotModels.swift */,
+				83CBBA671A601CBA00E9B192 /* ScreenshotOutput.swift */,
 				83CBBA3A1A601CBA00E9B192 /* SelectionOverlay.swift */,
 				83CBBA3B1A601CBA00E9B192 /* SystemModels.swift */,
 				83CBBA3C1A601CBA00E9B192 /* Assets.xcassets */,
@@ -114,6 +119,7 @@
 			isa = PBXGroup;
 			children = (
 				83CBBA3F1A601CBA00E9B192 /* ScreenshotModelsTests.swift */,
+				83CBBA651A601CBA00E9B192 /* ScreenshotOutputTests.swift */,
 			);
 			path = AtlasTests;
 			sourceTree = "<group>";
@@ -227,6 +233,7 @@
 				83CBBA271A601CBA00E9B192 /* PortMasterPanel.swift in Sources */,
 				83CBBA281A601CBA00E9B192 /* ScreenshotPanel.swift in Sources */,
 				83CBBA2C1A601CBA00E9B192 /* ScreenshotModels.swift in Sources */,
+				83CBBA661A601CBA00E9B192 /* ScreenshotOutput.swift in Sources */,
 				83CBBA291A601CBA00E9B192 /* SelectionOverlay.swift in Sources */,
 				83CBBA2A1A601CBA00E9B192 /* SystemModels.swift in Sources */,
 			);
@@ -237,6 +244,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				83CBBA2D1A601CBA00E9B192 /* ScreenshotModelsTests.swift in Sources */,
+				83CBBA641A601CBA00E9B192 /* ScreenshotOutputTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
