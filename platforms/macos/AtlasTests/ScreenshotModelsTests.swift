@@ -39,4 +39,71 @@ final class ScreenshotModelsTests: XCTestCase {
 
         XCTAssertEqual(ScreenshotTool.allCases, [.rectangle, .arrow, .pen, .text, .pixelate])
     }
+
+    func testArrowStandardizesBoundsAndKeepsPoints() {
+        let start = CGPoint(x: 50, y: 80)
+        let end = CGPoint(x: 10, y: 20)
+        let annotation = ScreenshotAnnotation.arrow(from: start, to: end, color: .blue, lineWidth: 2)
+
+        XCTAssertEqual(annotation.kind, .arrow)
+        XCTAssertEqual(annotation.bounds, CGRect(x: 10, y: 20, width: 40, height: 60))
+        XCTAssertEqual(annotation.color, .blue)
+        XCTAssertEqual(annotation.lineWidth, 2)
+        XCTAssertEqual(annotation.points, [start, end])
+    }
+
+    func testPenBoundsAndPoints() {
+        let points = [
+            CGPoint(x: 2, y: 3),
+            CGPoint(x: 10, y: 4),
+            CGPoint(x: 5, y: 12),
+        ]
+        let annotation = ScreenshotAnnotation.pen(points: points, color: .green, lineWidth: 4)
+
+        XCTAssertEqual(annotation.kind, .pen)
+        XCTAssertEqual(annotation.bounds, CGRect(x: 2, y: 3, width: 9, height: 10))
+        XCTAssertEqual(annotation.color, .green)
+        XCTAssertEqual(annotation.lineWidth, 4)
+        XCTAssertEqual(annotation.points, points)
+    }
+
+    func testTextPayloadAndBounds() {
+        let rect = CGRect(x: 12, y: 24, width: 100, height: 32)
+        let annotation = ScreenshotAnnotation.text(value: "Hello", rect: rect, color: .yellow)
+
+        XCTAssertEqual(annotation.kind, .text("Hello"))
+        XCTAssertEqual(annotation.bounds, rect)
+        XCTAssertEqual(annotation.color, .yellow)
+        XCTAssertEqual(annotation.lineWidth, 1)
+        XCTAssertEqual(annotation.points, [])
+    }
+
+    func testPixelateDefaults() {
+        let rect = CGRect(x: 4, y: 8, width: 40, height: 20)
+        let annotation = ScreenshotAnnotation.pixelate(rect: rect)
+
+        XCTAssertEqual(annotation.kind, .pixelate)
+        XCTAssertEqual(annotation.bounds, rect)
+        XCTAssertEqual(annotation.color, .gray)
+        XCTAssertEqual(annotation.lineWidth, 1)
+        XCTAssertEqual(annotation.points, [])
+    }
+
+    func testCapturedScreenshotInitialization() {
+        let id = UUID(uuidString: "00000000-0000-0000-0000-000000000002")!
+        let data = Data([0x89, 0x50, 0x4e, 0x47])
+        let rect = CGRect(x: 1, y: 2, width: 300, height: 200)
+        let capturedAt = Date(timeIntervalSince1970: 1_700_000_000)
+        let screenshot = CapturedScreenshot(
+            id: id,
+            pngData: data,
+            rect: rect,
+            capturedAt: capturedAt
+        )
+
+        XCTAssertEqual(screenshot.id, id)
+        XCTAssertEqual(screenshot.pngData, data)
+        XCTAssertEqual(screenshot.rect, rect)
+        XCTAssertEqual(screenshot.capturedAt, capturedAt)
+    }
 }
