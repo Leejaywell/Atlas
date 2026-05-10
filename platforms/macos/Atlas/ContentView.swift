@@ -129,11 +129,19 @@ struct ContentView: View {
     }
 
     private func captureFullScreen() {
-        if let data = AtlasBridge.captureFullScreen() {
-            let rect = CGRect(x: 0, y: 0, width: 0, height: 0)
-            capturedScreenshot = CapturedScreenshot(pngData: data, rect: rect)
-            showStatus("Captured full screen")
+        guard let data = AtlasBridge.captureFullScreen() else {
+            showStatus("Failed to capture full screen")
+            return
         }
+
+        guard let image = NSImage(data: data) else {
+            showStatus("Failed to capture full screen")
+            return
+        }
+
+        let rect = CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height)
+        capturedScreenshot = CapturedScreenshot(pngData: data, rect: rect)
+        showStatus("Captured full screen")
     }
 
     private func copyScreenshot(_ data: Data) {
